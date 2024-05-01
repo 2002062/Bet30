@@ -59,24 +59,35 @@ public class LotariaController
         _model.ChaveSorteada = Enumerable.Range(1, N_BOLAS).OrderBy(x => _rand.Next()).Take(N_CHAVE).ToArray();
     }
 
-    private void ApostaSimples()
+private void ApostaSimples()
+{
+    bool apostaValida = false;
+    while (!apostaValida)
     {
-        bool apostaValida = false;
-        while (!apostaValida)
+        string entrada = _view.SolicitarEntrada($"Indique a sua aposta [{N_CHAVE} números de 1 a {N_BOLAS}], separados por espaço:");
+        var entradas = entrada.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        List<int> numerosEntrada;
+        try
         {
-            string entrada = _view.SolicitarEntrada($"Indique a sua aposta [{N_CHAVE} números de 1 a {N_BOLAS}], separados por espaço:");
-            var numerosEntrada = entrada.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
-
-            if (numerosEntrada.Count() != N_CHAVE || numerosEntrada.Any(n => n < 1 || n > N_BOLAS) || numerosEntrada.Distinct().Count() != N_CHAVE)
-            {
-                _view.MostrarMensagem("Verifique sua aposta. Os números devem ser únicos e estar no intervalo de 1 a 49.");
-                continue;
-            }
-
-            _model.Aposta = numerosEntrada.ToArray();
-            apostaValida = true;
+            numerosEntrada = entradas.Select(int.Parse).ToList();
         }
+        catch (FormatException)
+        {
+            _view.MostrarMensagem("Erro: As entradas devem ser todas numéricas.");
+            continue;
+        }
+
+        if (numerosEntrada.Count != N_CHAVE || numerosEntrada.Any(n => n < 1 || n > N_BOLAS) || numerosEntrada.Distinct().Count() != N_CHAVE)
+        {
+            _view.MostrarMensagem("Verifique sua aposta. Os números devem ser únicos e estar no intervalo de 1 a 49.");
+            continue;
+        }
+
+        _model.Aposta = numerosEntrada.ToArray();
+        apostaValida = true;
     }
+}
 
     private void ApostaMultipla(char tipoAposta)
     {
