@@ -5,71 +5,65 @@ using System.Collections.Generic;
 public class ResultadoAposta
 {
     private event EventHandler? StateChanged; // Evento para notificar mudanças de estado.
-    private HashSet<EventHandler> _observers = new HashSet<EventHandler>(); // Conjunto de observadores que são notificados das mudanças.
+    private HashSet<EventHandler> _observers = new HashSet<EventHandler>();
 
-    private bool _stateChanged = false; // Indicador para controlar se ocorreu uma mudança de estado.
-
-    private int[] _aposta = Array.Empty<int>(); // Array que guarda a aposta atual do utilizador.
+    private bool _stateChanged = false;
+    private int[] _aposta = Array.Empty<int>();
     public int[] Aposta
     {
         get => _aposta;
         set
         {
-            // Verifica se a nova aposta é diferente da atual antes de atualizar.
             if (!_aposta.SequenceEqual(value))
             {
                 _aposta = value;
-                _stateChanged = true; // Marca que o estado mudou.
+                NotifyStateChanged();
             }
         }
     }
 
-    private int[] _chaveSorteada = Array.Empty<int>(); // Array que guarda a chave sorteada.
+    private int[] _chaveSorteada = Array.Empty<int>();
     public int[] ChaveSorteada
     {
         get => _chaveSorteada;
         set
         {
-            // Verifica se a nova chave sorteada é diferente da atual antes de atualizar.
             if (!_chaveSorteada.SequenceEqual(value))
             {
                 _chaveSorteada = value;
-                _stateChanged = true; // Marca que o estado mudou.
+                NotifyStateChanged();
             }
         }
     }
 
-    private int _acertos = 0; // Número de acertos da última aposta.
+    private int _acertos = 0;
     public int Acertos
     {
         get => _acertos;
         set
         {
-            // Atualiza o número de acertos apenas se for diferente do valor atual.
             if (_acertos != value)
             {
                 _acertos = value;
-                _stateChanged = true; // Marca que o estado mudou.
+                NotifyStateChanged();
             }
         }
     }
 
-    private string _premio = string.Empty; // Descrição do prémio ganho.
+    private string _premio = string.Empty;
     public string Premio
     {
         get => _premio;
         set
         {
-            // Atualiza o prémio apenas se for diferente do valor atual.
             if (_premio != value)
             {
                 _premio = value;
-                _stateChanged = true; // Marca que o estado mudou.
+                NotifyStateChanged();
             }
         }
     }
 
-    // Adiciona um observador ao conjunto de observadores e ao evento de mudança de estado.
     public void AddObserver(EventHandler observer)
     {
         if (_observers.Add(observer))
@@ -78,7 +72,6 @@ public class ResultadoAposta
         }
     }
 
-    // Remove um observador do conjunto de observadores e do evento de mudança de estado.
     public void RemoveObserver(EventHandler observer)
     {
         if (_observers.Remove(observer))
@@ -87,17 +80,15 @@ public class ResultadoAposta
         }
     }
 
-    // Invoca o evento de mudança de estado se houve alguma mudança.
-    protected virtual void OnStateChanged()
+    protected void NotifyStateChanged()
     {
         if (_stateChanged)
         {
             StateChanged?.Invoke(this, EventArgs.Empty);
-            _stateChanged = false; // Reinicializa o indicador de mudança de estado.
+            _stateChanged = false;
         }
     }
 
-    // Método estático para determinar o prémio com base no número de acertos.
     public static string DeterminarPremio(int quantidadeDeAcertos)
     {
         switch (quantidadeDeAcertos)
